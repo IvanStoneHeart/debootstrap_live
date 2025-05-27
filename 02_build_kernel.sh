@@ -2,26 +2,36 @@
 
 cd work/kernel
 
-# Change to the first directory ls finds, e.g. 'linux-4.4.6'.
+# Change to the first directory ls finds, e.g. 'linux-4.15'.
 cd $(ls -d *)
 
-# Cleans up the kernel sources, including configuration files.
+# Mostra o diretório atual para debug
+echo "Building kernel in: $(pwd)"
+
+# Limpeza
 make mrproper
 
-# Create default configuration file for the kernel.
+# Configuração
 make defconfig
 
-# Changes the name of the system to 'minimal'.
+# Modificação do hostname
 sed -i "s/.*CONFIG_DEFAULT_HOSTNAME.*/CONFIG_DEFAULT_HOSTNAME=\"minimal\"/" .config
 
-# Compile the kernel with optimization for "parallel jobs" = "number of processors".
-# Good explanation of the different kernels:
-# http://unix.stackexchange.com/questions/5518/what-is-the-difference-between-the-following-kernel-makefile-terms-vmlinux-vmlinux
-make bzImage -j $(grep ^processor /proc/cpuinfo | wc -l)
+# Compilação com verificação
+if ! make bzImage -j $(nproc); then
+    echo "Falha na compilação do kernel!"
+    exit 1
+fi
 
-# Install kernel headers in './usr' (this is not '/usr') which are used later
-# when we build and configure the GNU C library (glibc).
+# Verifica se o bzImage foi criado
+if [ ! -f arch/x86/boot/bzImage ]; then
+    echo "ERRO: bzImage não foi gerado em $(pwd)/arch/x86/boot/"
+    exit 1
+else
+    echo "bzImage gerado com sucesso em: $(pwd)/arch/x86/boot/bzImage"
+    ls -lh arch/x86/boot/bzImage
+fi
+
 make headers_install
 
 cd ../../..
-
