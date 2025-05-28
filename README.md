@@ -10,7 +10,7 @@ sudo apt install wget make gawk gcc bc libelf-dev xorriso debootstrap curl
 
 <h4>Download</h4>
 
-git clone https://github.com/zac87/debootstrap_live.git
+git clone https://github.com/IvanStoneHeart/debootstrap_live.git
 
 <h4>Usage</h4>
 
